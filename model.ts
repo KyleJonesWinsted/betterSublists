@@ -163,10 +163,4 @@ class SublistField {
     }
 }
 
-const rec = record.load({ type: 'invoice', id: 9999 });
-getSublist(rec, 'item')
-    .filter((line) => <string>line.getField('item').getValue() === '1234')
-    .forEach((line) => line.getField('quantity').setValue(0).getField('rate').setValue(0));
-
-
 export = { getSublist, Sublist, SublistLine, SublistField };
