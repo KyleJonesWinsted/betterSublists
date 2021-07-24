@@ -25,15 +25,11 @@ class Sublist implements Iterable<SublistLine> {
         return this.rec;
     }
 
-    private nextLine = (lineNumber: number): SublistLine => {
-        return new SublistLine(this, lineNumber);
-    }
-
     *[Symbol.iterator](): Iterator<SublistLine, any, undefined> {
         let line = 0;
         const lineCount = this.rec.getLineCount({ sublistId: this.sublistId });
         while (line < lineCount) {
-            yield this.nextLine(line++)!;
+            yield new SublistLine(this, line++);
         }
     }
 
@@ -41,8 +37,10 @@ class Sublist implements Iterable<SublistLine> {
         return this.map((line) => line);
     }
 
-    forEach = (closure: (line: SublistLine) => void): void => {
-        for (const line of this) closure(line);
+    forEach = (closure: (line: SublistLine, index?: number, array?: SublistLine[]) => void): void => {
+        let index = 0;
+        const array = this.collect();
+        for (const line of this) closure(line, index, array);
     }
 
     reduce = <T>(
@@ -90,7 +88,7 @@ class Sublist implements Iterable<SublistLine> {
         let index = 0;
         const array = this.collect();
         for (const line of this) {
-            if (closure(line, index++, array)) return index;
+            if (closure(line, index++, array)) return --index;
         }
         return -1;
     }
