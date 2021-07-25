@@ -10,15 +10,18 @@ class Sublist {
         this.getRecord = () => {
             return this.rec;
         };
-        this.nextLine = (lineNumber) => {
-            return new SublistLine(this, lineNumber);
-        };
         this.collect = () => {
-            return this.map((line) => line);
+            const arr = [];
+            for (const line of this) {
+                arr.push(line);
+            }
+            return arr;
         };
         this.forEach = (closure) => {
+            let index = 0;
+            const array = this.collect();
             for (const line of this)
-                closure(line);
+                closure(line, index, array);
         };
         this.reduce = (closure, initialValue) => {
             let acc = initialValue;
@@ -53,7 +56,7 @@ class Sublist {
             const array = this.collect();
             for (const line of this) {
                 if (closure(line, index++, array))
-                    return index;
+                    return --index;
             }
             return -1;
         };
@@ -71,7 +74,7 @@ class Sublist {
         let line = 0;
         const lineCount = this.rec.getLineCount({ sublistId: this.sublistId });
         while (line < lineCount) {
-            yield this.nextLine(line++);
+            yield new SublistLine(this, line++);
         }
     }
 }

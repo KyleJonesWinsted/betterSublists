@@ -7,10 +7,9 @@ declare class Sublist implements Iterable<SublistLine> {
     constructor(rec: record.Record, sublistId: string);
     getLine: (lineNumber: number) => SublistLine;
     getRecord: () => record.Record;
-    private nextLine;
     [Symbol.iterator](): Iterator<SublistLine, any, undefined>;
     collect: () => SublistLine[];
-    forEach: (closure: (line: SublistLine) => void) => void;
+    forEach: (closure: (line: SublistLine, index?: number | undefined, array?: SublistLine[] | undefined) => void) => void;
     reduce: <T>(closure: (accumulator: T, line: SublistLine, index?: number | undefined, array?: SublistLine[] | undefined) => T, initialValue: T) => T;
     map: <T>(closure: (line: SublistLine, index?: number | undefined, array?: SublistLine[] | undefined) => T) => T[];
     filter: (closure: (line: SublistLine, index?: number | undefined, array?: SublistLine[] | undefined) => boolean) => SublistLine[];
