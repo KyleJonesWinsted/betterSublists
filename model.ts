@@ -34,7 +34,11 @@ class Sublist implements Iterable<SublistLine> {
     }
 
     collect = (): SublistLine[] => {
-        return this.map((line) => line);
+        const arr = [];
+        for (const line of this) {
+            arr.push(line);
+        }
+        return arr;
     }
 
     forEach = (closure: (line: SublistLine, index?: number, array?: SublistLine[]) => void): void => {
