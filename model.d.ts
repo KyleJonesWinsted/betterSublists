@@ -1,4 +1,4 @@
-import * as record from '@hitc/netsuite-types/N/record';
+import * as record from 'N/record';
 declare function getSublist(rec: record.Record, sublistId: string): Sublist;
 declare class Sublist implements Iterable<SublistLine> {
     private rec;
