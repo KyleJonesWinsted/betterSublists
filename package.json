@@ -2,7 +2,7 @@
   "name": "better-sublists",
   "version": "1.0.0",
   "description": "A wrapper around the Suitescript N/record module that makes working with sublists easier and more flexible",
-  "main": "model.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
