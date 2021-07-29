@@ -50,3 +50,8 @@ for (const line of getSublist(rec, 'item')) {
             .modifyValue(desc => 'Bulk Discount: ' + desc)
     }
 }
+```
+
+## Future Development
+
+In future releases support will be added for dynamic/client records as well as the ability to add/remove lines from a sublist.
