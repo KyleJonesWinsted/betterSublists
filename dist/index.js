@@ -235,6 +235,13 @@ define(["require", "exports"], function (require, exports) {
                     sublistId: _this.line.getSublist().sublistId,
                 });
             };
+            this.getText = function () {
+                return _this.getRecord().getSublistText({
+                    fieldId: _this.fieldId,
+                    line: _this.line.lineNumber,
+                    sublistId: _this.line.getSublist().sublistId,
+                });
+            };
             this.setValue = function (newValue) {
                 _this.getRecord().setSublistValue({
                     sublistId: _this.line.getSublist().sublistId,

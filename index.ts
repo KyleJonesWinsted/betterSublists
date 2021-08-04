@@ -148,6 +148,14 @@ class SublistField {
         });
     }
 
+    getText = (): string => {
+        return this.getRecord().getSublistText({
+            fieldId: this.fieldId,
+            line: this.line.lineNumber,
+            sublistId: this.line.getSublist().sublistId,
+        });
+    }
+
     setValue = (newValue: record.FieldValue): SublistLine => {
         this.getRecord().setSublistValue({
             sublistId: this.line.getSublist().sublistId,

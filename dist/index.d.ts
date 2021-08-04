@@ -30,6 +30,7 @@ declare class SublistField {
     constructor(line: SublistLine, fieldId: string);
     private getRecord;
     getValue: () => record.FieldValue;
+    getText: () => string;
     setValue: (newValue: record.FieldValue) => SublistLine;
     modifyValue: <T extends record.FieldValue>(closure: (oldValue: T) => T) => SublistLine;
 }
