@@ -12,6 +12,10 @@ class Sublist implements Iterable<SublistLine> {
         return this._sublistId;
     }
 
+    get record(): record.Record {
+        return this.rec;
+    }
+
     constructor(rec: record.Record, sublistId: string) {
         this.rec = rec;
         this._sublistId = sublistId;
@@ -19,10 +23,6 @@ class Sublist implements Iterable<SublistLine> {
 
     getLine = (lineNumber: number): SublistLine => {
         return new SublistLine(this, lineNumber);
-    }
-
-    getRecord = (): record.Record => {
-        return this.rec;
     }
 
     *[Symbol.iterator](): Iterator<SublistLine, any, undefined> {
@@ -106,15 +106,19 @@ class Sublist implements Iterable<SublistLine> {
 }
 
 class SublistLine {
-    private sublist: Sublist;
+    private _sublist: Sublist;
     private _lineNumber: number;
 
     get lineNumber() {
         return this._lineNumber;
     }
 
+    get sublist(): Sublist {
+        return this._sublist;
+    }
+
     constructor(sublist: Sublist, lineNumber: number) {
-        this.sublist = sublist;
+        this._sublist = sublist;
         this._lineNumber = lineNumber;
     }
 
@@ -122,8 +126,11 @@ class SublistLine {
         return new SublistField(this, fieldId);
     }
 
-    getSublist = (): Sublist => {
-        return this.sublist;
+    commit = (): SublistLine => {
+        if (this.sublist.record.isDynamic) {
+            this.sublist.record.commitLine({ sublistId: this.sublist.sublistId })
+        }
+        return this;
     }
 }
 
@@ -136,33 +143,67 @@ class SublistField {
         this.fieldId = fieldId;
     }
 
-    private getRecord = (): record.Record => {
-        return this.line.getSublist().getRecord();
+    get record(): record.Record {
+        return this.line.sublist.record;
     }
 
     getValue = (): record.FieldValue => {
-        return this.getRecord().getSublistValue({
+        return this.record.getSublistValue({
             fieldId: this.fieldId,
             line: this.line.lineNumber,
-            sublistId: this.line.getSublist().sublistId,
+            sublistId: this.line.sublist.sublistId,
         });
     }
 
     getText = (): string => {
-        return this.getRecord().getSublistText({
+        return this.record.getSublistText({
             fieldId: this.fieldId,
             line: this.line.lineNumber,
-            sublistId: this.line.getSublist().sublistId,
+            sublistId: this.line.sublist.sublistId,
         });
     }
 
-    setValue = (newValue: record.FieldValue): SublistLine => {
-        this.getRecord().setSublistValue({
-            sublistId: this.line.getSublist().sublistId,
-            line: this.line.lineNumber,
-            fieldId: this.fieldId,
-            value: newValue,
-        });
+    getSubrecord = (): record.Record => {
+        const rec = this.record;
+        const fieldId = this.fieldId;
+        const line = this.line.lineNumber;
+        const sublistId = this.line.sublist.sublistId;
+        if (rec.isDynamic) {
+            rec.selectLine({ sublistId, line });
+            return rec.getCurrentSublistSubrecord({ sublistId, fieldId });
+        } else {
+            return rec.getSublistSubrecord({ sublistId, fieldId, line });
+        }
+        
+    }
+
+    setValue = (value: record.FieldValue, commit = true): SublistLine => {
+        const rec = this.record;
+        const sublistId = this.line.sublist.sublistId;
+        const line = this.line.lineNumber;
+        const fieldId = this.fieldId;
+        if (rec.isDynamic) {
+            rec.selectLine({ sublistId, line });
+            rec.setCurrentSublistValue({ sublistId, fieldId, value });
+            if (commit) rec.commitLine({ sublistId });
+        } else {
+            rec.setSublistValue({ sublistId, fieldId, line, value });
+        }
+        return this.line;
+    }
+
+    setText = (text: string): SublistLine => {
+        const rec = this.record;
+        const sublistId = this.line.sublist.sublistId;
+        const line = this.line.lineNumber;
+        const fieldId = this.fieldId;
+        if (rec.isDynamic) {
+            rec.selectLine({ sublistId, line });
+            rec.setCurrentSublistText({ sublistId, fieldId, text });
+            rec.commitLine({ sublistId });
+        } else {
+            rec.setSublistText({ sublistId, fieldId, line, text });
+        }
         return this.line;
     }
 
@@ -171,6 +212,12 @@ class SublistField {
         const newValue = closure(oldValue);
         return this.setValue(newValue);
     }
+
+    modifyText = (closure: (oldValue: string) => string): SublistLine => {
+        const oldValue = this.getText();
+        const newValue = closure(oldValue);
+        return this.setText(newValue);
+    }
 }
 
-export = { getSublist, Sublist, SublistLine, SublistField };
+export { getSublist, Sublist, SublistLine, SublistField };

@@ -38,17 +38,17 @@ var __values = (this && this.__values) || function(o) {
 };
 define(["require", "exports"], function (require, exports) {
     "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.SublistField = exports.SublistLine = exports.Sublist = exports.getSublist = void 0;
     function getSublist(rec, sublistId) {
         return new Sublist(rec, sublistId);
     }
+    exports.getSublist = getSublist;
     var Sublist = /** @class */ (function () {
         function Sublist(rec, sublistId) {
             var _this = this;
             this.getLine = function (lineNumber) {
                 return new SublistLine(_this, lineNumber);
-            };
-            this.getRecord = function () {
-                return _this.rec;
             };
             this.collect = function () {
                 var e_1, _a;
@@ -181,6 +181,13 @@ define(["require", "exports"], function (require, exports) {
             enumerable: false,
             configurable: true
         });
+        Object.defineProperty(Sublist.prototype, "record", {
+            get: function () {
+                return this.rec;
+            },
+            enumerable: false,
+            configurable: true
+        });
         Sublist.prototype[Symbol.iterator] = function () {
             var line, lineCount;
             return __generator(this, function (_a) {
@@ -201,16 +208,20 @@ define(["require", "exports"], function (require, exports) {
         };
         return Sublist;
     }());
+    exports.Sublist = Sublist;
     var SublistLine = /** @class */ (function () {
         function SublistLine(sublist, lineNumber) {
             var _this = this;
             this.getField = function (fieldId) {
                 return new SublistField(_this, fieldId);
             };
-            this.getSublist = function () {
-                return _this.sublist;
+            this.commit = function () {
+                if (_this.sublist.record.isDynamic) {
+                    _this.sublist.record.commitLine({ sublistId: _this.sublist.sublistId });
+                }
+                return _this;
             };
-            this.sublist = sublist;
+            this._sublist = sublist;
             this._lineNumber = lineNumber;
         }
         Object.defineProperty(SublistLine.prototype, "lineNumber", {
@@ -220,35 +231,76 @@ define(["require", "exports"], function (require, exports) {
             enumerable: false,
             configurable: true
         });
+        Object.defineProperty(SublistLine.prototype, "sublist", {
+            get: function () {
+                return this._sublist;
+            },
+            enumerable: false,
+            configurable: true
+        });
         return SublistLine;
     }());
+    exports.SublistLine = SublistLine;
     var SublistField = /** @class */ (function () {
         function SublistField(line, fieldId) {
             var _this = this;
-            this.getRecord = function () {
-                return _this.line.getSublist().getRecord();
-            };
             this.getValue = function () {
-                return _this.getRecord().getSublistValue({
+                return _this.record.getSublistValue({
                     fieldId: _this.fieldId,
                     line: _this.line.lineNumber,
-                    sublistId: _this.line.getSublist().sublistId,
+                    sublistId: _this.line.sublist.sublistId,
                 });
             };
             this.getText = function () {
-                return _this.getRecord().getSublistText({
+                return _this.record.getSublistText({
                     fieldId: _this.fieldId,
                     line: _this.line.lineNumber,
-                    sublistId: _this.line.getSublist().sublistId,
+                    sublistId: _this.line.sublist.sublistId,
                 });
             };
-            this.setValue = function (newValue) {
-                _this.getRecord().setSublistValue({
-                    sublistId: _this.line.getSublist().sublistId,
-                    line: _this.line.lineNumber,
-                    fieldId: _this.fieldId,
-                    value: newValue,
-                });
+            this.getSubrecord = function () {
+                var rec = _this.record;
+                var fieldId = _this.fieldId;
+                var line = _this.line.lineNumber;
+                var sublistId = _this.line.sublist.sublistId;
+                if (rec.isDynamic) {
+                    rec.selectLine({ sublistId: sublistId, line: line });
+                    return rec.getCurrentSublistSubrecord({ sublistId: sublistId, fieldId: fieldId });
+                }
+                else {
+                    return rec.getSublistSubrecord({ sublistId: sublistId, fieldId: fieldId, line: line });
+                }
+            };
+            this.setValue = function (value, commit) {
+                if (commit === void 0) { commit = true; }
+                var rec = _this.record;
+                var sublistId = _this.line.sublist.sublistId;
+                var line = _this.line.lineNumber;
+                var fieldId = _this.fieldId;
+                if (rec.isDynamic) {
+                    rec.selectLine({ sublistId: sublistId, line: line });
+                    rec.setCurrentSublistValue({ sublistId: sublistId, fieldId: fieldId, value: value });
+                    if (commit)
+                        rec.commitLine({ sublistId: sublistId });
+                }
+                else {
+                    rec.setSublistValue({ sublistId: sublistId, fieldId: fieldId, line: line, value: value });
+                }
+                return _this.line;
+            };
+            this.setText = function (text) {
+                var rec = _this.record;
+                var sublistId = _this.line.sublist.sublistId;
+                var line = _this.line.lineNumber;
+                var fieldId = _this.fieldId;
+                if (rec.isDynamic) {
+                    rec.selectLine({ sublistId: sublistId, line: line });
+                    rec.setCurrentSublistText({ sublistId: sublistId, fieldId: fieldId, text: text });
+                    rec.commitLine({ sublistId: sublistId });
+                }
+                else {
+                    rec.setSublistText({ sublistId: sublistId, fieldId: fieldId, line: line, text: text });
+                }
                 return _this.line;
             };
             this.modifyValue = function (closure) {
@@ -256,10 +308,22 @@ define(["require", "exports"], function (require, exports) {
                 var newValue = closure(oldValue);
                 return _this.setValue(newValue);
             };
+            this.modifyText = function (closure) {
+                var oldValue = _this.getText();
+                var newValue = closure(oldValue);
+                return _this.setText(newValue);
+            };
             this.line = line;
             this.fieldId = fieldId;
         }
+        Object.defineProperty(SublistField.prototype, "record", {
+            get: function () {
+                return this.line.sublist.record;
+            },
+            enumerable: false,
+            configurable: true
+        });
         return SublistField;
     }());
-    return { getSublist: getSublist, Sublist: Sublist, SublistLine: SublistLine, SublistField: SublistField };
+    exports.SublistField = SublistField;
 });

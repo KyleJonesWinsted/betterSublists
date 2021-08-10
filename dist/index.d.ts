@@ -4,9 +4,9 @@ declare class Sublist implements Iterable<SublistLine> {
     private rec;
     private _sublistId;
     get sublistId(): string;
+    get record(): record.Record;
     constructor(rec: record.Record, sublistId: string);
     getLine: (lineNumber: number) => SublistLine;
-    getRecord: () => record.Record;
     [Symbol.iterator](): Iterator<SublistLine, any, undefined>;
     collect: () => SublistLine[];
     forEach: (closure: (line: SublistLine, index?: number | undefined, array?: SublistLine[] | undefined) => void) => void;
@@ -17,27 +17,25 @@ declare class Sublist implements Iterable<SublistLine> {
     find: (closure: (line: SublistLine, index?: number | undefined, array?: SublistLine[] | undefined) => boolean) => SublistLine | undefined;
 }
 declare class SublistLine {
-    private sublist;
+    private _sublist;
     private _lineNumber;
     get lineNumber(): number;
+    get sublist(): Sublist;
     constructor(sublist: Sublist, lineNumber: number);
     getField: (fieldId: string) => SublistField;
-    getSublist: () => Sublist;
+    commit: () => SublistLine;
 }
 declare class SublistField {
     private line;
     private fieldId;
     constructor(line: SublistLine, fieldId: string);
-    private getRecord;
+    get record(): record.Record;
     getValue: () => record.FieldValue;
     getText: () => string;
-    setValue: (newValue: record.FieldValue) => SublistLine;
+    getSubrecord: () => record.Record;
+    setValue: (value: record.FieldValue, commit?: boolean) => SublistLine;
+    setText: (text: string) => SublistLine;
     modifyValue: <T extends record.FieldValue>(closure: (oldValue: T) => T) => SublistLine;
+    modifyText: (closure: (oldValue: string) => string) => SublistLine;
 }
-declare const _default: {
-    getSublist: typeof getSublist;
-    Sublist: typeof Sublist;
-    SublistLine: typeof SublistLine;
-    SublistField: typeof SublistField;
-};
-export = _default;
+export { getSublist, Sublist, SublistLine, SublistField };
