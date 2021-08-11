@@ -177,7 +177,7 @@ class SublistField {
         
     }
 
-    setValue = (value: record.FieldValue, commit = true): SublistLine => {
+    setValue = (value: record.FieldValue): SublistLine => {
         const rec = this.record;
         const sublistId = this.line.sublist.sublistId;
         const line = this.line.lineNumber;
@@ -185,7 +185,6 @@ class SublistField {
         if (rec.isDynamic) {
             rec.selectLine({ sublistId, line });
             rec.setCurrentSublistValue({ sublistId, fieldId, value });
-            if (commit) rec.commitLine({ sublistId });
         } else {
             rec.setSublistValue({ sublistId, fieldId, line, value });
         }
@@ -200,7 +199,6 @@ class SublistField {
         if (rec.isDynamic) {
             rec.selectLine({ sublistId, line });
             rec.setCurrentSublistText({ sublistId, fieldId, text });
-            rec.commitLine({ sublistId });
         } else {
             rec.setSublistText({ sublistId, fieldId, line, text });
         }

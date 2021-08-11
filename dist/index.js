@@ -271,8 +271,7 @@ define(["require", "exports"], function (require, exports) {
                     return rec.getSublistSubrecord({ sublistId: sublistId, fieldId: fieldId, line: line });
                 }
             };
-            this.setValue = function (value, commit) {
-                if (commit === void 0) { commit = true; }
+            this.setValue = function (value) {
                 var rec = _this.record;
                 var sublistId = _this.line.sublist.sublistId;
                 var line = _this.line.lineNumber;
@@ -280,8 +279,6 @@ define(["require", "exports"], function (require, exports) {
                 if (rec.isDynamic) {
                     rec.selectLine({ sublistId: sublistId, line: line });
                     rec.setCurrentSublistValue({ sublistId: sublistId, fieldId: fieldId, value: value });
-                    if (commit)
-                        rec.commitLine({ sublistId: sublistId });
                 }
                 else {
                     rec.setSublistValue({ sublistId: sublistId, fieldId: fieldId, line: line, value: value });
@@ -296,7 +293,6 @@ define(["require", "exports"], function (require, exports) {
                 if (rec.isDynamic) {
                     rec.selectLine({ sublistId: sublistId, line: line });
                     rec.setCurrentSublistText({ sublistId: sublistId, fieldId: fieldId, text: text });
-                    rec.commitLine({ sublistId: sublistId });
                 }
                 else {
                     rec.setSublistText({ sublistId: sublistId, fieldId: fieldId, line: line, text: text });
