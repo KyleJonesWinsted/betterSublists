@@ -1,22 +1,24 @@
 import * as record from 'N/record';
 
-function getSublist(rec: record.Record, sublistId: string): Sublist {
+type Record = record.Record | record.ClientCurrentRecord;
+
+function getSublist(rec: Record, sublistId: string): Sublist {
     return new Sublist(rec, sublistId);
 }
 
 class Sublist implements Iterable<SublistLine> {
-    private rec: record.Record;
+    private rec: Record;
     private _sublistId: string;
 
     get sublistId() {
         return this._sublistId;
     }
 
-    get record(): record.Record {
+    get record(): Record {
         return this.rec;
     }
 
-    constructor(rec: record.Record, sublistId: string) {
+    constructor(rec: Record, sublistId: string) {
         this.rec = rec;
         this._sublistId = sublistId;
     }
@@ -143,7 +145,7 @@ class SublistField {
         this.fieldId = fieldId;
     }
 
-    get record(): record.Record {
+    get record(): Record {
         return this.line.sublist.record;
     }
 
@@ -168,7 +170,7 @@ class SublistField {
         const fieldId = this.fieldId;
         const line = this.line.lineNumber;
         const sublistId = this.line.sublist.sublistId;
-        if (rec.isDynamic) {
+        if (rec.isDynamic || !("getSublistSubrecord" in rec)) {
             rec.selectLine({ sublistId, line });
             return rec.getCurrentSublistSubrecord({ sublistId, fieldId });
         } else {
@@ -182,7 +184,7 @@ class SublistField {
         const sublistId = this.line.sublist.sublistId;
         const line = this.line.lineNumber;
         const fieldId = this.fieldId;
-        if (rec.isDynamic) {
+        if (rec.isDynamic || !("setSublistValue" in rec)) {
             rec.selectLine({ sublistId, line });
             rec.setCurrentSublistValue({ sublistId, fieldId, value });
         } else {
@@ -196,7 +198,7 @@ class SublistField {
         const sublistId = this.line.sublist.sublistId;
         const line = this.line.lineNumber;
         const fieldId = this.fieldId;
-        if (rec.isDynamic) {
+        if (rec.isDynamic || !("setSublistText" in rec)) {
             rec.selectLine({ sublistId, line });
             rec.setCurrentSublistText({ sublistId, fieldId, text });
         } else {

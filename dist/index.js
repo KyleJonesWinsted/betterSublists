@@ -263,7 +263,7 @@ define(["require", "exports"], function (require, exports) {
                 var fieldId = _this.fieldId;
                 var line = _this.line.lineNumber;
                 var sublistId = _this.line.sublist.sublistId;
-                if (rec.isDynamic) {
+                if (rec.isDynamic || !("getSublistSubrecord" in rec)) {
                     rec.selectLine({ sublistId: sublistId, line: line });
                     return rec.getCurrentSublistSubrecord({ sublistId: sublistId, fieldId: fieldId });
                 }
@@ -276,7 +276,7 @@ define(["require", "exports"], function (require, exports) {
                 var sublistId = _this.line.sublist.sublistId;
                 var line = _this.line.lineNumber;
                 var fieldId = _this.fieldId;
-                if (rec.isDynamic) {
+                if (rec.isDynamic || !("setSublistValue" in rec)) {
                     rec.selectLine({ sublistId: sublistId, line: line });
                     rec.setCurrentSublistValue({ sublistId: sublistId, fieldId: fieldId, value: value });
                 }
@@ -290,7 +290,7 @@ define(["require", "exports"], function (require, exports) {
                 var sublistId = _this.line.sublist.sublistId;
                 var line = _this.line.lineNumber;
                 var fieldId = _this.fieldId;
-                if (rec.isDynamic) {
+                if (rec.isDynamic || !("setSublistText" in rec)) {
                     rec.selectLine({ sublistId: sublistId, line: line });
                     rec.setCurrentSublistText({ sublistId: sublistId, fieldId: fieldId, text: text });
                 }

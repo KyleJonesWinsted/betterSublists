@@ -1,11 +1,12 @@
 import * as record from 'N/record';
-declare function getSublist(rec: record.Record, sublistId: string): Sublist;
+declare type Record = record.Record | record.ClientCurrentRecord;
+declare function getSublist(rec: Record, sublistId: string): Sublist;
 declare class Sublist implements Iterable<SublistLine> {
     private rec;
     private _sublistId;
     get sublistId(): string;
-    get record(): record.Record;
-    constructor(rec: record.Record, sublistId: string);
+    get record(): Record;
+    constructor(rec: Record, sublistId: string);
     getLine: (lineNumber: number) => SublistLine;
     [Symbol.iterator](): Iterator<SublistLine, any, undefined>;
     collect: () => SublistLine[];
@@ -29,7 +30,7 @@ declare class SublistField {
     private line;
     private fieldId;
     constructor(line: SublistLine, fieldId: string);
-    get record(): record.Record;
+    get record(): Record;
     getValue: () => record.FieldValue;
     getText: () => string;
     getSubrecord: () => record.Record;
