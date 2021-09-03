@@ -14,7 +14,7 @@ for (const line of getSublist(record, 'sublistId')) {
 }
 ```
 
-The `Sublist` type also supports the following higher order functions: `map`, `reduce`, `filter`, `find`, and `findIndex`. You can also call `collect` to convert the `Sublist` type into an array of `SublistLine` instances.
+The `Sublist` type support most methods you'd expect to see on an array like `map`, `filter`, and `reduce`. You can also call `collect` to convert the `Sublist` type into an array of `SublistLine` instances.
 
 Fields can be accessed by calling `getField` on a `SublistLine`. The `SublistField` type contains three methods.
 
@@ -52,6 +52,3 @@ for (const line of getSublist(rec, 'item')) {
 }
 ```
 
-## Future Development
-
-In future releases support will be added for dynamic/client records as well as the ability to add/remove lines from a sublist.

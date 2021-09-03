@@ -50,6 +50,19 @@ define(["require", "exports"], function (require, exports) {
             this.getLine = function (lineNumber) {
                 return new SublistLine(_this, lineNumber);
             };
+            this.getNSSublist = function () {
+                return _this.rec.getSublist({ sublistId: _this.sublistId });
+            };
+            this.addLine = function (index) {
+                _this.rec.insertLine({ line: index, sublistId: _this.sublistId });
+                return _this.getLine(index);
+            };
+            this.addNewLine = function () {
+                return _this.addLine(_this.lineCount);
+            };
+            this.removeLine = function (index) {
+                _this.rec.removeLine({ line: index, sublistId: _this.sublistId });
+            };
             this.collect = function () {
                 var e_1, _a;
                 var arr = [];
@@ -68,109 +81,15 @@ define(["require", "exports"], function (require, exports) {
                 }
                 return arr;
             };
-            this.forEach = function (closure) {
-                var e_2, _a;
-                var index = 0;
-                var array = _this.collect();
-                try {
-                    for (var _b = __values(_this), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var line = _c.value;
-                        closure(line, index, array);
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-            };
-            this.reduce = function (closure, initialValue) {
-                var e_3, _a;
-                var acc = initialValue;
-                var index = 0;
-                var array = _this.collect();
-                try {
-                    for (var _b = __values(_this), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var line = _c.value;
-                        acc = closure(acc, line, index++, array);
-                    }
-                }
-                catch (e_3_1) { e_3 = { error: e_3_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_3) throw e_3.error; }
-                }
-                return acc;
-            };
-            this.map = function (closure) {
-                var e_4, _a;
-                var mapped = [];
-                var index = 0;
-                var array = _this.collect();
-                try {
-                    for (var _b = __values(_this), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var line = _c.value;
-                        mapped.push(closure(line, index++, array));
-                    }
-                }
-                catch (e_4_1) { e_4 = { error: e_4_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_4) throw e_4.error; }
-                }
-                return mapped;
-            };
-            this.filter = function (closure) {
-                var e_5, _a;
-                var filtered = [];
-                var index = 0;
-                var array = _this.collect();
-                try {
-                    for (var _b = __values(_this), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var line = _c.value;
-                        if (closure(line, index++, array))
-                            filtered.push(line);
-                    }
-                }
-                catch (e_5_1) { e_5 = { error: e_5_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_5) throw e_5.error; }
-                }
-                return filtered;
-            };
-            this.findIndex = function (closure) {
-                var e_6, _a;
-                var index = 0;
-                var array = _this.collect();
-                try {
-                    for (var _b = __values(_this), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var line = _c.value;
-                        if (closure(line, index++, array))
-                            return --index;
-                    }
-                }
-                catch (e_6_1) { e_6 = { error: e_6_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_6) throw e_6.error; }
-                }
-                return -1;
-            };
-            this.find = function (closure) {
-                var index = _this.findIndex(closure);
-                return _this.collect()[index];
-            };
+            this.forEach = this.collect().forEach;
+            this.reduce = this.collect().reduce;
+            this.map = this.collect().map;
+            this.filter = this.collect().filter;
+            this.findIndex = this.collect().findIndex;
+            this.find = this.collect().find;
+            this.reverse = this.collect().reverse;
+            this.slice = this.collect().slice;
+            this.splice = this.collect().splice;
             this.rec = rec;
             this._sublistId = sublistId;
         }
@@ -184,6 +103,13 @@ define(["require", "exports"], function (require, exports) {
         Object.defineProperty(Sublist.prototype, "record", {
             get: function () {
                 return this.rec;
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(Sublist.prototype, "lineCount", {
+            get: function () {
+                return this.rec.getLineCount({ sublistId: this.sublistId });
             },
             enumerable: false,
             configurable: true
@@ -220,6 +146,10 @@ define(["require", "exports"], function (require, exports) {
                     _this.sublist.record.commitLine({ sublistId: _this.sublist.sublistId });
                 }
                 return _this;
+            };
+            this.cancel = function () {
+                _this.sublist.record.cancelLine({ sublistId: _this.sublist.sublistId });
+                return _this.sublist;
             };
             this._sublist = sublist;
             this._lineNumber = lineNumber;
@@ -308,6 +238,39 @@ define(["require", "exports"], function (require, exports) {
                 var oldValue = _this.getText();
                 var newValue = closure(oldValue);
                 return _this.setText(newValue);
+            };
+            this.hasSubrecord = function () {
+                return _this.record.hasSublistSubrecord({
+                    fieldId: _this.fieldId,
+                    line: _this.line.lineNumber,
+                    sublistId: _this.line.sublist.sublistId,
+                });
+            };
+            this.removeSubrecord = function () {
+                if ('removeSublistSubrecord' in _this.record) {
+                    _this.record.removeSublistSubrecord({
+                        fieldId: _this.fieldId,
+                        line: _this.line.lineNumber,
+                        sublistId: _this.line.sublist.sublistId,
+                    });
+                }
+                else {
+                    _this.record.removeCurrentSublistSubrecord({
+                        fieldId: _this.fieldId,
+                        sublistId: _this.line.sublist.sublistId,
+                    });
+                }
+                return _this.line;
+            };
+            this.getNSField = function () {
+                return _this.line.sublist.record.getSublistField({
+                    sublistId: _this.line.sublist.sublistId,
+                    fieldId: _this.fieldId,
+                    line: _this.line.lineNumber,
+                });
+            };
+            this.getNSColumn = function () {
+                return _this.line.sublist.getNSSublist().getColumn({ fieldId: _this.fieldId });
             };
             this.line = line;
             this.fieldId = fieldId;

@@ -18,6 +18,10 @@ class Sublist implements Iterable<SublistLine> {
         return this.rec;
     }
 
+    get lineCount(): number {
+        return this.rec.getLineCount({ sublistId: this.sublistId });
+    }
+
     constructor(rec: Record, sublistId: string) {
         this.rec = rec;
         this._sublistId = sublistId;
@@ -25,6 +29,23 @@ class Sublist implements Iterable<SublistLine> {
 
     getLine = (lineNumber: number): SublistLine => {
         return new SublistLine(this, lineNumber);
+    }
+
+    getNSSublist = (): record.Sublist => {
+        return this.rec.getSublist({ sublistId: this.sublistId });
+    }
+
+    addLine = (index: number): SublistLine => {
+        this.rec.insertLine({ line: index, sublistId: this.sublistId });
+        return this.getLine(index);
+    }
+
+    addNewLine = (): SublistLine => {
+        return this.addLine(this.lineCount);
+    }
+
+    removeLine = (index: number): void => {
+        this.rec.removeLine({ line: index, sublistId: this.sublistId });
     }
 
     *[Symbol.iterator](): Iterator<SublistLine, any, undefined> {
@@ -43,68 +64,23 @@ class Sublist implements Iterable<SublistLine> {
         return arr;
     }
 
-    forEach = (closure: (line: SublistLine, index?: number, array?: SublistLine[]) => void): void => {
-        let index = 0;
-        const array = this.collect();
-        for (const line of this) closure(line, index, array);
-    }
+    forEach = this.collect().forEach
 
-    reduce = <T>(
-        closure: (
-            accumulator: T,
-            line: SublistLine,
-            index?: number,
-            array?: SublistLine[]
-        ) => T, initialValue: T
-    ): T => {
-        let acc = initialValue;
-        let index = 0;
-        const array = this.collect();
-        for (const line of this) {
-            acc = closure(acc, line, index++, array);
-        }
-        return acc;
-    }
+    reduce = this.collect().reduce
 
-    map = <T>(closure: (line: SublistLine, index?: number, array?: SublistLine[]) => T): T[] => {
-        const mapped = [];
-        let index = 0;
-        const array = this.collect();
-        for (const line of this) {
-            mapped.push(closure(line, index++, array));
-        }
-        return mapped;
-    }
+    map = this.collect().map
 
-    filter = (
-        closure: (line: SublistLine, index?: number, array?: SublistLine[]) => boolean
-    ): SublistLine[] => {
-        const filtered = [];
-        let index = 0;
-        const array = this.collect();
-        for (const line of this) {
-            if (closure(line, index++, array)) filtered.push(line);
-        }
-        return filtered;
-    }
+    filter = this.collect().filter
 
-    findIndex = (
-        closure: (line: SublistLine, index?: number, array?: SublistLine[]) => boolean
-    ): number => {
-        let index = 0;
-        const array = this.collect();
-        for (const line of this) {
-            if (closure(line, index++, array)) return --index;
-        }
-        return -1;
-    }
+    findIndex = this.collect().findIndex
 
-    find = (
-        closure: (line: SublistLine, index?: number, array?: SublistLine[]) => boolean
-    ): SublistLine | undefined => {
-        const index = this.findIndex(closure);
-        return this.collect()[index];
-    }
+    find = this.collect().find
+
+    reverse = this.collect().reverse
+
+    slice = this.collect().slice
+
+    splice = this.collect().splice
 }
 
 class SublistLine {
@@ -133,6 +109,11 @@ class SublistLine {
             this.sublist.record.commitLine({ sublistId: this.sublist.sublistId })
         }
         return this;
+    }
+
+    cancel = (): Sublist => {
+        this.sublist.record.cancelLine({ sublistId: this.sublist.sublistId });
+        return this.sublist;
     }
 }
 
@@ -175,8 +156,7 @@ class SublistField {
             return rec.getCurrentSublistSubrecord({ sublistId, fieldId });
         } else {
             return rec.getSublistSubrecord({ sublistId, fieldId, line });
-        }
-        
+        } 
     }
 
     setValue = (value: record.FieldValue): SublistLine => {
@@ -217,6 +197,42 @@ class SublistField {
         const oldValue = this.getText();
         const newValue = closure(oldValue);
         return this.setText(newValue);
+    }
+
+    hasSubrecord = (): boolean => {
+        return this.record.hasSublistSubrecord({
+            fieldId: this.fieldId,
+            line: this.line.lineNumber,
+            sublistId: this.line.sublist.sublistId,
+        });
+    }
+
+    removeSubrecord = (): SublistLine => {
+        if ('removeSublistSubrecord' in this.record) {
+            this.record.removeSublistSubrecord({
+                fieldId: this.fieldId,
+                line: this.line.lineNumber,
+                sublistId: this.line.sublist.sublistId,
+            });
+        } else {
+            this.record.removeCurrentSublistSubrecord({
+                fieldId: this.fieldId,
+                sublistId: this.line.sublist.sublistId,
+            });
+        }
+        return this.line;
+    }
+
+    getNSField = (): record.Field => {
+        return this.line.sublist.record.getSublistField({
+            sublistId: this.line.sublist.sublistId,
+            fieldId: this.fieldId,
+            line: this.line.lineNumber,
+        });
+    }
+
+    getNSColumn = (): record.Column => {
+        return this.line.sublist.getNSSublist().getColumn({ fieldId: this.fieldId });
     }
 }
 
