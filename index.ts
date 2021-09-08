@@ -18,13 +18,13 @@ class Sublist implements Iterable<SublistLine> {
         return this.rec;
     }
 
-    get lineCount(): number {
-        return this.rec.getLineCount({ sublistId: this.sublistId });
-    }
-
     constructor(rec: Record, sublistId: string) {
         this.rec = rec;
         this._sublistId = sublistId;
+    }
+
+    lineCount = (): number => {
+        return this.rec.getLineCount({ sublistId: this.sublistId });
     }
 
     getLine = (lineNumber: number): SublistLine => {
@@ -41,7 +41,7 @@ class Sublist implements Iterable<SublistLine> {
     }
 
     addNewLine = (): SublistLine => {
-        return this.addLine(this.lineCount);
+        return this.addLine(this.lineCount());
     }
 
     removeLine = (index: number): void => {
@@ -64,23 +64,37 @@ class Sublist implements Iterable<SublistLine> {
         return arr;
     }
 
-    forEach = this.collect().forEach
+    forEach = (callbackFn: (value: SublistLine, index: number, array: SublistLine[]) => void): void => {
+        this.collect().forEach(callbackFn);
+    }
 
-    reduce = this.collect().reduce
+    reduce = <T>(callbackfn: (previousValue: T, currentValue: SublistLine, currentIndex: number, array: SublistLine[]) => T, initialValue: T): T => {
+        return this.collect().reduce(callbackfn, initialValue);
+    }
 
-    map = this.collect().map
+    map = <U>(callbackfn: (value: SublistLine, index: number, array: SublistLine[]) => U): U[] => {
+        return this.collect().map(callbackfn);
+    }
 
-    filter = this.collect().filter
+    filter = (predicate: (value: SublistLine, index: number, array: SublistLine[]) => boolean): SublistLine[] => {
+        return this.collect().filter(predicate);
+    }
 
-    findIndex = this.collect().findIndex
+    findIndex = (predicate: (value: SublistLine, index: number, obj: SublistLine[]) => unknown): number => {
+        return this.collect().findIndex(predicate);
+    }
 
-    find = this.collect().find
+    find = (predicate: (value: SublistLine, index: number, obj: SublistLine[]) => boolean): SublistLine | undefined => {
+        return this.collect().find(predicate);
+    }
 
-    reverse = this.collect().reverse
+    reverse = (): SublistLine[] => {
+        return this.collect().reverse();
+    }
 
-    slice = this.collect().slice
-
-    splice = this.collect().splice
+    slice = (start?: number | undefined, end?: number | undefined): SublistLine[] => {
+        return this.collect().slice(start, end);
+    }
 }
 
 class SublistLine {

@@ -6,8 +6,8 @@ declare class Sublist implements Iterable<SublistLine> {
     private _sublistId;
     get sublistId(): string;
     get record(): Record;
-    get lineCount(): number;
     constructor(rec: Record, sublistId: string);
+    lineCount: () => number;
     getLine: (lineNumber: number) => SublistLine;
     getNSSublist: () => record.Sublist;
     addLine: (index: number) => SublistLine;
@@ -15,28 +15,14 @@ declare class Sublist implements Iterable<SublistLine> {
     removeLine: (index: number) => void;
     [Symbol.iterator](): Iterator<SublistLine, any, undefined>;
     collect: () => SublistLine[];
-    forEach: (callbackfn: (value: SublistLine, index: number, array: SublistLine[]) => void, thisArg?: any) => void;
-    reduce: {
-        (callbackfn: (previousValue: SublistLine, currentValue: SublistLine, currentIndex: number, array: SublistLine[]) => SublistLine): SublistLine;
-        (callbackfn: (previousValue: SublistLine, currentValue: SublistLine, currentIndex: number, array: SublistLine[]) => SublistLine, initialValue: SublistLine): SublistLine;
-        <U>(callbackfn: (previousValue: U, currentValue: SublistLine, currentIndex: number, array: SublistLine[]) => U, initialValue: U): U;
-    };
-    map: <U>(callbackfn: (value: SublistLine, index: number, array: SublistLine[]) => U, thisArg?: any) => U[];
-    filter: {
-        <S extends SublistLine>(predicate: (value: SublistLine, index: number, array: SublistLine[]) => value is S, thisArg?: any): S[];
-        (predicate: (value: SublistLine, index: number, array: SublistLine[]) => unknown, thisArg?: any): SublistLine[];
-    };
-    findIndex: (predicate: (value: SublistLine, index: number, obj: SublistLine[]) => unknown, thisArg?: any) => number;
-    find: {
-        <S extends SublistLine>(predicate: (this: void, value: SublistLine, index: number, obj: SublistLine[]) => value is S, thisArg?: any): S | undefined;
-        (predicate: (value: SublistLine, index: number, obj: SublistLine[]) => unknown, thisArg?: any): SublistLine | undefined;
-    };
+    forEach: (callbackfn: (value: SublistLine, index: number, array: SublistLine[]) => void) => void;
+    reduce: <T>(callbackfn: (previousValue: T, currentValue: SublistLine, currentIndex: number, array: SublistLine[]) => T, initialValue: T) => T;
+    map: <U>(callbackfn: (value: SublistLine, index: number, array: SublistLine[]) => U) => U[];
+    filter: (predicate: (value: SublistLine, index: number, array: SublistLine[]) => boolean) => SublistLine[];
+    findIndex: (predicate: (value: SublistLine, index: number, obj: SublistLine[]) => unknown) => number;
+    find: (predicate: (value: SublistLine, index: number, obj: SublistLine[]) => boolean) => SublistLine | undefined;
     reverse: () => SublistLine[];
     slice: (start?: number | undefined, end?: number | undefined) => SublistLine[];
-    splice: {
-        (start: number, deleteCount?: number | undefined): SublistLine[];
-        (start: number, deleteCount: number, ...items: SublistLine[]): SublistLine[];
-    };
 }
 declare class SublistLine {
     private _sublist;

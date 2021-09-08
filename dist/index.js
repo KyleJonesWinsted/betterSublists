@@ -47,6 +47,9 @@ define(["require", "exports"], function (require, exports) {
     var Sublist = /** @class */ (function () {
         function Sublist(rec, sublistId) {
             var _this = this;
+            this.lineCount = function () {
+                return _this.rec.getLineCount({ sublistId: _this.sublistId });
+            };
             this.getLine = function (lineNumber) {
                 return new SublistLine(_this, lineNumber);
             };
@@ -58,7 +61,7 @@ define(["require", "exports"], function (require, exports) {
                 return _this.getLine(index);
             };
             this.addNewLine = function () {
-                return _this.addLine(_this.lineCount);
+                return _this.addLine(_this.lineCount());
             };
             this.removeLine = function (index) {
                 _this.rec.removeLine({ line: index, sublistId: _this.sublistId });
@@ -81,15 +84,30 @@ define(["require", "exports"], function (require, exports) {
                 }
                 return arr;
             };
-            this.forEach = this.collect().forEach;
-            this.reduce = this.collect().reduce;
-            this.map = this.collect().map;
-            this.filter = this.collect().filter;
-            this.findIndex = this.collect().findIndex;
-            this.find = this.collect().find;
-            this.reverse = this.collect().reverse;
-            this.slice = this.collect().slice;
-            this.splice = this.collect().splice;
+            this.forEach = function (callbackFn) {
+                _this.collect().forEach(callbackFn);
+            };
+            this.reduce = function (callbackfn, initialValue) {
+                return _this.collect().reduce(callbackfn, initialValue);
+            };
+            this.map = function (callbackfn) {
+                return _this.collect().map(callbackfn);
+            };
+            this.filter = function (predicate) {
+                return _this.collect().filter(predicate);
+            };
+            this.findIndex = function (predicate) {
+                return _this.collect().findIndex(predicate);
+            };
+            this.find = function (predicate) {
+                return _this.collect().find(predicate);
+            };
+            this.reverse = function () {
+                return _this.collect().reverse();
+            };
+            this.slice = function (start, end) {
+                return _this.collect().slice(start, end);
+            };
             this.rec = rec;
             this._sublistId = sublistId;
         }
@@ -103,13 +121,6 @@ define(["require", "exports"], function (require, exports) {
         Object.defineProperty(Sublist.prototype, "record", {
             get: function () {
                 return this.rec;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(Sublist.prototype, "lineCount", {
-            get: function () {
-                return this.rec.getLineCount({ sublistId: this.sublistId });
             },
             enumerable: false,
             configurable: true
