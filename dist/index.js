@@ -1,3 +1,22 @@
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __generator = (this && this.__generator) || function (thisArg, body) {
     var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
     return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
@@ -36,10 +55,11 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-define(["require", "exports"], function (require, exports) {
+define(["require", "exports", "N/error"], function (require, exports, error) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.SublistField = exports.SublistLine = exports.Sublist = exports.getSublist = void 0;
+    error = __importStar(error);
     function getSublist(rec, sublistId) {
         return new Sublist(rec, sublistId);
     }
@@ -51,6 +71,13 @@ define(["require", "exports"], function (require, exports) {
                 return _this.rec.getLineCount({ sublistId: _this.sublistId });
             };
             this.getLine = function (lineNumber) {
+                var lineCount = _this.lineCount();
+                if (lineNumber >= lineCount) {
+                    throw error.create({
+                        name: 'LINE_INDEX_OUT_OF_RANGE',
+                        message: "The requested line " + lineNumber + " is greater than the length of the sublist: " + lineCount,
+                    });
+                }
                 return new SublistLine(_this, lineNumber);
             };
             this.getNSSublist = function () {

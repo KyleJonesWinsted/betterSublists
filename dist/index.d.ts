@@ -15,7 +15,7 @@ declare class Sublist implements Iterable<SublistLine> {
     removeLine: (index: number) => void;
     [Symbol.iterator](): Iterator<SublistLine, any, undefined>;
     collect: () => SublistLine[];
-    forEach: (callbackfn: (value: SublistLine, index: number, array: SublistLine[]) => void) => void;
+    forEach: (callbackFn: (value: SublistLine, index: number, array: SublistLine[]) => void) => void;
     reduce: <T>(callbackfn: (previousValue: T, currentValue: SublistLine, currentIndex: number, array: SublistLine[]) => T, initialValue: T) => T;
     map: <U>(callbackfn: (value: SublistLine, index: number, array: SublistLine[]) => U) => U[];
     filter: (predicate: (value: SublistLine, index: number, array: SublistLine[]) => boolean) => SublistLine[];

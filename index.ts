@@ -1,4 +1,5 @@
 import * as record from 'N/record';
+import * as error from 'N/error';
 
 type Record = record.Record | record.ClientCurrentRecord;
 
@@ -28,6 +29,13 @@ class Sublist implements Iterable<SublistLine> {
     }
 
     getLine = (lineNumber: number): SublistLine => {
+        const lineCount = this.lineCount();
+        if (lineNumber >= lineCount) {
+            throw error.create({
+                name: 'LINE_INDEX_OUT_OF_RANGE',
+                message: `The requested line ${lineNumber} is greater than the length of the sublist: ${lineCount}`,
+            })
+        }
         return new SublistLine(this, lineNumber);
     }
 
