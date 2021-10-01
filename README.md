@@ -2,6 +2,23 @@
 
 A wrapper around the Suitescript N/record module that makes working with sublists easier and more flexible
 
+## Installation
+
+If you're NetSuite development environment supports NPM you can install simply running 
+
+```bash
+npm install better-sublists
+```
+
+Otherwise, you can upload `index.js` to the File Cabinet and reference it in the call to `define` in your script:
+
+```js
+define(["require", "exports", "N/record", "../netsuite_modules/better-sublists/index"], function (require, exports, record, betterSublists) {
+    // Your code here...
+}
+```
+
+
 ## Usage
 
 A complete list of methods can be found [here](dist/index.d.ts). If you don't use TypeScript (I feel sorry for you), see [this guide](https://www.typescriptlang.org/docs/handbook/declaration-files/by-example.html)
