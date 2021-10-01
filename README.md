@@ -4,6 +4,8 @@ A wrapper around the Suitescript N/record module that makes working with sublist
 
 ## Usage
 
+A complete list of methods can be found [here](dist/index.d.ts). If you don't use TypeScript (I feel sorry for you), see [this guide](https://www.typescriptlang.org/docs/handbook/declaration-files/by-example.html)
+
 Usage of this module always starts by calling `getSublist`.
 
 Once you have a `Sublist` you can fetch a line directly with `getLine` or iterate over the entire sublist using `forEach`. The `Sublist` type is also an iterable type so you can use a traditional for loop:
