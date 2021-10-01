@@ -1,6 +1,6 @@
 {
   "name": "better-sublists",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A wrapper around the Suitescript N/record module that makes working with sublists easier and more flexible",
   "main": "./dist/index.js",
   "files": [
