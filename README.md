@@ -21,7 +21,7 @@ define(["require", "exports", "N/record", "../netsuite_modules/better-sublists/i
 
 ## Usage
 
-A complete list of methods can be found [here](dist/index.d.ts). If you don't use TypeScript (I feel sorry for you), see [this guide](https://www.typescriptlang.org/docs/handbook/declaration-files/by-example.html)
+A complete list of methods can be found in `dist/index.d.ts`. If you don't use TypeScript (I feel sorry for you), see [this guide](https://www.typescriptlang.org/docs/handbook/declaration-files/by-example.html)
 
 Usage of this module always starts by calling `getSublist`.
 
