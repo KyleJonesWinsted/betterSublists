@@ -25,6 +25,14 @@ A complete list of methods can be found in `dist/index.d.ts`. If you don't use T
 
 Usage of this module always starts by calling `getSublist`.
 
+### `getSublist`
+The getSublist function allows the isDynamic flag to be passed in to force Dynamic or Static mode. If the parameter is not provided, the isDynamic field will be sourced from rec.isDynamic.
+
+```ts
+function getSublist(rec: Record, sublistId: string, isDynamic: boolean | null = null): Sublist
+```
+## Working with Sublist
+
 Once you have a `Sublist` you can fetch a line directly with `getLine` or iterate over the entire sublist using `forEach`. The `Sublist` type is also an iterable type so you can use a traditional for loop:
 
 ```ts
@@ -47,21 +55,22 @@ Both `setValue` and `modifyValue` return an instance of a `SublistLine` so you c
 
 ## Examples
 
+### Static Mode
 ```ts
 import { getSublist } from 'better-sublists'
 const rec = record.load({ type: 'invoice', id: 1234 });
 
 // Set the first line quantity to zero
-getSublist(rec, 'item').getLine(0).getField('quantity').setValue(0);
+getSublist(rec, 'item', false).getLine(0).getField('quantity').setValue(0);
 
 // Summing the total amount for a given item on an invoice
-const total = getSublist(rec, 'item')
+const total = getSublist(rec, 'item', false)
     .filter(line => line.getField('item').getValue() === '4321')
     .map(line => line.getField('amount').getValue())
     .reduce((acc, curr) => acc + curr);
 
 // Applying a 10% discount on items with a quantity over 10 and marking the item as discounted
-for (const line of getSublist(rec, 'item')) {
+for (const line of getSublist(rec, 'item', false)) {
     if (line.getField('quantity').getValue() > 10) {
         line.getField('rate')
             .modifyValue(rate => rate * 0.9)
@@ -69,5 +78,33 @@ for (const line of getSublist(rec, 'item')) {
             .modifyValue(desc => 'Bulk Discount: ' + desc)
     }
 }
+
+```
+
+### Dynamic Mode
+```ts
+import { getSublist } from 'better-sublists'
+const rec = record.load({ type: 'invoice', id: 1234, isDynamic: true });
+
+// Set the first line quantity to zero
+getSublist(rec, 'item', true).getLine(0).getField('quantity').setValue(0).commit();
+
+// Summing the total amount for a given item on an invoice
+const total = getSublist(rec, 'item', true)
+    .filter(line => line.getField('item').getValue() === '4321')
+    .map(line => line.getField('amount').getValue())
+    .reduce((acc, curr) => acc + curr);
+
+// Applying a 10% discount on items with a quantity over 10 and marking the item as discounted
+for (const line of getSublist(rec, 'item', true)) {
+    if (line.getField('quantity').getValue() > 10) {
+        line.getField('rate')
+            .modifyValue(rate => rate * 0.9)
+            .getField('description')
+            .modifyValue(desc => 'Bulk Discount: ' + desc)
+            .commit();  //.commit() to commit changes to dynmic line or .cancel() to abort changes
+    }
+}
+
 ```
 
